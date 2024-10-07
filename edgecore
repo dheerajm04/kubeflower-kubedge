@@ -1,0 +1,22 @@
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl enable docker
+sudo systemctl status docker
+
+curl -Lo ./kind "https://kind.sigs.k8s.io/dl/v0.11.1/kind-$(uname)-amd64"
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+sudo kind create cluster
+
+wget https://github.com/kubeedge/kubeedge/releases/download/v1.12.1/keadm-v1.12.1-linux-amd64.tar.gz
+tar -zxvf keadm-v1.12.1-linux-amd64.tar.gz
+sudo cp keadm-v1.12.1-linux-amd64/keadm/keadm /usr/local/bin/keadm
+
+sudo systemctl set-environment CHECK_EDGECORE_ENVIRONMENT="false"
+sudo keadm join --cloudcore-ipport="CloudCore-IP:10000" --token=${token} --kubeedge-version=v1.12.1
+
+sudo systemctl status edgecore
